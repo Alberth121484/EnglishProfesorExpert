@@ -32,6 +32,10 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             username=user.username,
             language_code=user.language_code or "es"
         )
+        logger.info(f"Start command - Student {'created' if is_new else 'found'}: {student.id} (telegram_id: {user.id})")
+        
+        # Ensure student is committed to database
+        await db.commit()
         
         if is_new:
             welcome_message = (
@@ -183,6 +187,10 @@ async def handle_text_message(update: Update, context: ContextTypes.DEFAULT_TYPE
             last_name=user.last_name,
             username=user.username
         )
+        logger.info(f"Text handler - Student {'created' if is_new else 'found'}: {student.id} (telegram_id: {user.id})")
+        
+        # Ensure student is committed to database
+        await db.commit()
         
         # Get or create active lesson
         lesson = await lesson_service.get_or_create_active_lesson(student)
@@ -278,6 +286,10 @@ async def handle_voice_message(update: Update, context: ContextTypes.DEFAULT_TYP
             last_name=user.last_name,
             username=user.username
         )
+        logger.info(f"Voice handler - Student {'created' if is_new else 'found'}: {student.id} (telegram_id: {user.id})")
+        
+        # Ensure student is committed to database
+        await db.commit()
         
         # Get or create active lesson
         lesson = await lesson_service.get_or_create_active_lesson(student)

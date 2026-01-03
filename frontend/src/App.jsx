@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from './context/AuthContext'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
@@ -7,6 +7,7 @@ import Layout from './components/Layout'
 
 function PrivateRoute({ children }) {
   const { isAuthenticated, loading } = useAuth()
+  const location = useLocation()
   
   if (loading) {
     return (
@@ -16,7 +17,10 @@ function PrivateRoute({ children }) {
     )
   }
   
-  return isAuthenticated ? children : <Navigate to="/login" />
+  // Preserve query params (like telegram_id) when redirecting to login
+  const loginPath = `/login${location.search}`
+  
+  return isAuthenticated ? children : <Navigate to={loginPath} />
 }
 
 function App() {

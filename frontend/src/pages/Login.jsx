@@ -7,9 +7,13 @@ export default function Login() {
   const [telegramId, setTelegramId] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [autoLoginAttempted, setAutoLoginAttempted] = useState(false)
   const { loginWithTelegramId, isAuthenticated } = useAuth()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
+
+  // Check if we have telegram_id in URL for auto-login
+  const urlTelegramId = searchParams.get('telegram_id')
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -19,11 +23,11 @@ export default function Login() {
 
   useEffect(() => {
     // Auto-login if telegram_id is in URL
-    const tid = searchParams.get('telegram_id')
-    if (tid) {
-      handleLogin(tid)
+    if (urlTelegramId && !autoLoginAttempted) {
+      setAutoLoginAttempted(true)
+      handleLogin(urlTelegramId)
     }
-  }, [searchParams])
+  }, [urlTelegramId, autoLoginAttempted])
 
   const handleLogin = async (tid) => {
     const idToUse = tid || telegramId
@@ -43,6 +47,22 @@ export default function Login() {
     } finally {
       setLoading(false)
     }
+  }
+
+  // Show loading screen during auto-login attempt
+  if (urlTelegramId && loading && !error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary-500 via-purple-500 to-pink-500 flex items-center justify-center p-4">
+        <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 text-center">
+          <div className="w-20 h-20 bg-gradient-to-br from-primary-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <span className="text-white font-bold text-3xl">E</span>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">English Profesor Expert</h1>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <p className="text-gray-500">Iniciando sesión...</p>
+        </div>
+      </div>
+    )
   }
 
   return (

@@ -1,15 +1,18 @@
 import hmac
 import hashlib
+import logging
 from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, HTTPException, Depends
 from jose import jwt, JWTError
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import text
 from app.config import get_settings
 from app.database import get_db
 from app.schemas import TelegramAuthData, TokenResponse
 from app.services import StudentService
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 settings = get_settings()
 security = HTTPBearer()
@@ -117,12 +120,21 @@ async def authenticate_by_telegram_id(
     Authenticate by Telegram ID (for users coming from bot).
     This is a simplified auth for users who click the panel link from Telegram.
     """
+    logger.info(f"Auth attempt for telegram_id: {telegram_id}")
+    
+    # Debug: Check what students exist in database
+    result = await db.execute(text("SELECT id, telegram_id, first_name FROM students LIMIT 10"))
+    existing_students = result.fetchall()
+    logger.info(f"Existing students in DB: {existing_students}")
+    
     student_service = StudentService(db)
     student = await student_service.get_student_by_telegram_id(telegram_id)
     
     if not student:
+        logger.warning(f"Student not found for telegram_id: {telegram_id}")
         raise HTTPException(status_code=404, detail="Student not found")
     
+    logger.info(f"Found student: {student.id} - {student.first_name}")
     token = create_access_token(telegram_id, student.id)
     
     return TokenResponse(
