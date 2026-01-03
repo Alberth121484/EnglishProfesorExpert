@@ -56,27 +56,62 @@ async def get_student_dashboard(
         logger.error(f"Error loading student: {e}")
         raise HTTPException(status_code=500, detail=f"Error loading student data: {str(e)}")
     
-    # Get skills progress
+    # Get skills progress - if no skills, create default with zero values
     skills_progress = []
-    for student_skill in student.skills:
-        skills_progress.append(SkillProgress(
-            skill=SkillResponse(
-                id=student_skill.skill.id,
-                code=student_skill.skill.code,
-                name=student_skill.skill.name,
-                icon=student_skill.skill.icon
-            ),
-            level=LevelResponse(
-                id=student_skill.level.id,
-                code=student_skill.level.code,
-                name=student_skill.level.name,
-                description=student_skill.level.description,
-                order=student_skill.level.order
-            ),
-            score=student_skill.score,
-            lessons_completed=student_skill.lessons_completed,
-            last_practiced=student_skill.last_practiced
-        ))
+    
+    if student.skills:
+        for student_skill in student.skills:
+            skills_progress.append(SkillProgress(
+                skill=SkillResponse(
+                    id=student_skill.skill.id,
+                    code=student_skill.skill.code,
+                    name=student_skill.skill.name,
+                    icon=student_skill.skill.icon
+                ),
+                level=LevelResponse(
+                    id=student_skill.level.id,
+                    code=student_skill.level.code,
+                    name=student_skill.level.name,
+                    description=student_skill.level.description,
+                    order=student_skill.level.order
+                ),
+                score=student_skill.score,
+                lessons_completed=student_skill.lessons_completed,
+                last_practiced=student_skill.last_practiced
+            ))
+    else:
+        # Create default skills with zero values for new users
+        default_skills = [
+            {"code": "SPEAKING", "name": "Speaking", "icon": "mic"},
+            {"code": "LISTENING", "name": "Listening", "icon": "headphones"},
+            {"code": "READING", "name": "Reading", "icon": "book-open"},
+            {"code": "WRITING", "name": "Writing", "icon": "pencil"},
+            {"code": "VOCABULARY", "name": "Vocabulary", "icon": "library"},
+            {"code": "GRAMMAR", "name": "Grammar", "icon": "brackets"},
+        ]
+        current_level = student.current_level or LevelResponse(
+            id=1, code="PRE_A1", name="Pre A1 - Principiante",
+            description="Nivel inicial para principiantes absolutos", order=1
+        )
+        for i, skill_data in enumerate(default_skills):
+            skills_progress.append(SkillProgress(
+                skill=SkillResponse(
+                    id=i + 1,
+                    code=skill_data["code"],
+                    name=skill_data["name"],
+                    icon=skill_data["icon"]
+                ),
+                level=LevelResponse(
+                    id=current_level.id if hasattr(current_level, 'id') else 1,
+                    code=current_level.code if hasattr(current_level, 'code') else "PRE_A1",
+                    name=current_level.name if hasattr(current_level, 'name') else "Pre A1 - Principiante",
+                    description=current_level.description if hasattr(current_level, 'description') else "",
+                    order=current_level.order if hasattr(current_level, 'order') else 1
+                ),
+                score=0,
+                lessons_completed=0,
+                last_practiced=None
+            ))
     
     # Get recent lessons count
     recent_lessons = await lesson_service.get_recent_lessons_count(student_id, days=7)
