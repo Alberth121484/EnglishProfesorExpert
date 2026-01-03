@@ -28,7 +28,8 @@ def build_system_message(state: TutorState) -> SystemMessage:
         student_name=state["student_name"],
         current_level=state["current_level"],
         total_lessons=state["total_lessons"],
-        streak_days=state["streak_days"]
+        streak_days=state["streak_days"],
+        words_learned=state.get("words_learned", 0)
     )
     return SystemMessage(content=prompt)
 

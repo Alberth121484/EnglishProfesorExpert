@@ -87,7 +87,8 @@ async def get_tutor_response(
     lesson_id: int | None = None,
     is_audio: bool = False,
     audio_file_id: str | None = None,
-    is_new_student: bool = False
+    is_new_student: bool = False,
+    words_learned: int = 0
 ) -> tuple[str, dict | None]:
     """
     Get a response from the tutor agent.
@@ -115,6 +116,7 @@ async def get_tutor_response(
         "current_level_id": current_level_id,
         "total_lessons": total_lessons,
         "streak_days": streak_days,
+        "words_learned": words_learned,
         "user_input": user_input,
         "lesson_id": lesson_id,
         "is_audio": is_audio,
@@ -122,7 +124,8 @@ async def get_tutor_response(
         "is_new_student": is_new_student,
         "session_started": False,
         "should_evaluate": False,
-        "response": ""
+        "response": "",
+        "evaluation": None
     }
     
     try:

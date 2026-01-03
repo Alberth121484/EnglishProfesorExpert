@@ -17,6 +17,7 @@ class TutorState(TypedDict):
     current_level_id: int
     total_lessons: int
     streak_days: int
+    words_learned: int  # Vocabulary words learned
     
     # Session info
     lesson_id: int | None
@@ -31,3 +32,4 @@ class TutorState(TypedDict):
     # Response
     response: str
     should_evaluate: bool
+    evaluation: dict | None

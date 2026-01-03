@@ -33,6 +33,7 @@ class Student(Base):
     skills: Mapped[list["StudentSkill"]] = relationship(back_populates="student", cascade="all, delete-orphan")
     lessons: Mapped[list["Lesson"]] = relationship(back_populates="student", cascade="all, delete-orphan")
     assessments: Mapped[list["Assessment"]] = relationship(back_populates="student", cascade="all, delete-orphan")
+    vocabulary: Mapped[list["StudentVocabulary"]] = relationship(back_populates="student", cascade="all, delete-orphan")
     
     @property
     def full_name(self) -> str:

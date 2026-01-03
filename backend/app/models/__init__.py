@@ -5,6 +5,7 @@ from app.models.student_skill import StudentSkill
 from app.models.lesson import Lesson
 from app.models.lesson_message import LessonMessage
 from app.models.assessment import Assessment
+from app.models.vocabulary import VocabularyWord, StudentVocabulary
 
 __all__ = [
     "Student",
@@ -13,5 +14,7 @@ __all__ = [
     "StudentSkill",
     "Lesson",
     "LessonMessage",
-    "Assessment"
+    "Assessment",
+    "VocabularyWord",
+    "StudentVocabulary"
 ]
