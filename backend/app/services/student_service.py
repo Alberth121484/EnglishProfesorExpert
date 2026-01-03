@@ -201,6 +201,18 @@ class StudentService:
         )
         return result.scalar_one_or_none()
     
+    async def ensure_student_skills(self, student: Student):
+        """Ensure a student has skills initialized. Call this if skills are missing."""
+        if student.skills:
+            return  # Already has skills
+        
+        level = student.current_level
+        if not level:
+            level = await self._get_or_create_initial_level()
+        
+        await self._initialize_student_skills(student, level)
+        logger.info(f"Initialized skills for existing student: {student.id}")
+    
     async def update_student_progress(
         self,
         student: Student,

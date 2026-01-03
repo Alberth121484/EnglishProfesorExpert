@@ -1,3 +1,4 @@
+import logging
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
@@ -6,6 +7,7 @@ from app.schemas.student import LevelResponse, SkillResponse
 from app.services import StudentService, LessonService
 from app.api.auth import get_current_student_id
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
@@ -30,12 +32,29 @@ async def get_student_dashboard(
     db: AsyncSession = Depends(get_db)
 ):
     """Get complete dashboard data for current student."""
+    logger.info(f"Loading dashboard for student_id: {student_id}")
+    
     student_service = StudentService(db)
     lesson_service = LessonService(db)
     
-    student = await student_service.get_student_by_id(student_id)
-    if not student:
-        raise HTTPException(status_code=404, detail="Student not found")
+    try:
+        student = await student_service.get_student_by_id(student_id)
+        if not student:
+            logger.error(f"Student not found: {student_id}")
+            raise HTTPException(status_code=404, detail="Student not found")
+        
+        # Ensure student has skills initialized
+        if not student.skills:
+            logger.info(f"Initializing skills for student {student_id}")
+            await student_service.ensure_student_skills(student)
+            await db.commit()
+            # Reload student with skills
+            student = await student_service.get_student_by_id(student_id)
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error loading student: {e}")
+        raise HTTPException(status_code=500, detail=f"Error loading student data: {str(e)}")
     
     # Get skills progress
     skills_progress = []
