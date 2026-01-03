@@ -1,6 +1,6 @@
 import logging
 from langgraph.graph import StateGraph, END
-from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
+from langgraph.checkpoint.memory import MemorySaver
 from app.agent.state import TutorState
 from app.agent.nodes import (
     initialize_session,
@@ -53,15 +53,12 @@ def create_tutor_graph() -> StateGraph:
     return workflow
 
 
-async def get_checkpointer():
-    """Get or create the PostgreSQL checkpointer."""
+def get_checkpointer():
+    """Get or create the memory checkpointer."""
     global _checkpointer
     
     if _checkpointer is None:
-        # Convert async URL to sync for checkpointer
-        db_url = settings.database_url.replace("+asyncpg", "")
-        _checkpointer = AsyncPostgresSaver.from_conn_string(db_url)
-        await _checkpointer.setup()
+        _checkpointer = MemorySaver()
     
     return _checkpointer
 
@@ -72,7 +69,7 @@ async def get_compiled_graph():
     
     if _graph is None:
         workflow = create_tutor_graph()
-        checkpointer = await get_checkpointer()
+        checkpointer = get_checkpointer()
         _graph = workflow.compile(checkpointer=checkpointer)
     
     return _graph
