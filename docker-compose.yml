@@ -3,7 +3,7 @@ version: "3.8"
 services:
   # Backend API + Telegram Bot
   english-backend:
-    image: ${DOCKER_REGISTRY:-}english-profesor-backend:${VERSION:-latest}
+    image: ghcr.io/alberth121484/englishprofesorexpert/backend:latest
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -39,9 +39,9 @@ services:
         - "traefik.http.routers.english-api.tls.certresolver=letsencryptresolver"
         - "traefik.http.services.english-api.loadbalancer.server.port=8000"
 
-  # Frontend Panel
+  # Frontend Panel (Student Dashboard)
   english-frontend:
-    image: ${DOCKER_REGISTRY:-}english-profesor-frontend:${VERSION:-latest}
+    image: ghcr.io/alberth121484/englishprofesorexpert/frontend:latest
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -68,9 +68,9 @@ services:
         - "traefik.http.routers.english-panel.tls.certresolver=letsencryptresolver"
         - "traefik.http.services.english-panel.loadbalancer.server.port=80"
 
-  # Admin Panel
+  # Admin Panel (Statistics & User Management)
   english-admin:
-    image: ${DOCKER_REGISTRY:-}english-profesor-admin:${VERSION:-latest}
+    image: ghcr.io/alberth121484/englishprofesorexpert/admin:latest
     build:
       context: ./admin
       dockerfile: Dockerfile
