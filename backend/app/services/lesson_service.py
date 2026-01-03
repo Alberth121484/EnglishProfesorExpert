@@ -124,19 +124,20 @@ class LessonService:
         days: int = 7
     ) -> int:
         """Get count of lessons in the last N days."""
-        cutoff = datetime.now(timezone.utc).replace(
-            hour=0, minute=0, second=0, microsecond=0
-        )
-        cutoff = cutoff.replace(day=cutoff.day - days)
+        from datetime import timedelta
+        cutoff = datetime.now(timezone.utc) - timedelta(days=days)
         
-        result = await self.db.execute(
-            select(func.count(Lesson.id))
-            .where(
-                Lesson.student_id == student_id,
-                Lesson.started_at >= cutoff
+        try:
+            result = await self.db.execute(
+                select(func.count(Lesson.id))
+                .where(
+                    Lesson.student_id == student_id,
+                    Lesson.started_at >= cutoff
+                )
             )
-        )
-        return result.scalar() or 0
+            return result.scalar() or 0
+        except Exception:
+            return 0
     
     async def get_total_lessons_at_level(
         self,
