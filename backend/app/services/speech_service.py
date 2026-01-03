@@ -13,13 +13,16 @@ class SpeechService:
         self.elevenlabs_url = "https://api.elevenlabs.io/v1/text-to-speech"
     
     async def transcribe_audio(self, audio_bytes: bytes, filename: str = "audio.ogg") -> str:
-        """Transcribe audio to text using OpenAI Whisper."""
+        """Transcribe audio to text using OpenAI Whisper.
+        
+        Auto-detects language to support both Spanish and English audio inputs.
+        """
         try:
-            # Create a file-like object
+            # Create a file-like object - let Whisper auto-detect language
+            # This supports both Spanish (student's native language) and English (learning)
             transcript = await self.openai_client.audio.transcriptions.create(
                 model="whisper-1",
-                file=(filename, audio_bytes),
-                language="es"  # Hint that input might be Spanish
+                file=(filename, audio_bytes)
             )
             
             logger.info(f"Transcribed audio: {transcript.text[:50]}...")

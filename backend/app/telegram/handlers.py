@@ -225,25 +225,20 @@ async def handle_text_message(update: Update, context: ContextTypes.DEFAULT_TYPE
             if new_level:
                 response += f"\n\n🎉 ¡Felicidades! ¡Has subido a *{new_level.name}*!"
     
-    # Generate audio response
+    # Send text response first
+    await update.message.reply_text(response, parse_mode="Markdown")
+    
+    # Then generate and send audio response
     try:
         await update.message.chat.send_action("record_voice")
         audio_bytes = await speech_service.text_to_speech(response)
         
         # Send audio
-        await update.message.reply_voice(
-            voice=io.BytesIO(audio_bytes),
-            caption=response[:1024] if len(response) > 200 else None
-        )
-        
-        # Also send text if response is long
-        if len(response) > 1024:
-            await update.message.reply_text(response, parse_mode="Markdown")
+        await update.message.reply_voice(voice=io.BytesIO(audio_bytes))
             
     except Exception as e:
         logger.error(f"Error generating audio: {e}")
-        # Fallback to text only
-        await update.message.reply_text(response, parse_mode="Markdown")
+        # Text already sent, just log the error
 
 
 async def handle_voice_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -328,22 +323,20 @@ async def handle_voice_message(update: Update, context: ContextTypes.DEFAULT_TYP
             if new_level:
                 response += f"\n\n🎉 ¡Felicidades! ¡Has subido a *{new_level.name}*!"
     
-    # Generate audio response
+    # Send text response first
+    await update.message.reply_text(response, parse_mode="Markdown")
+    
+    # Then generate and send audio response
     try:
         await update.message.chat.send_action("record_voice")
         audio_bytes = await speech_service.text_to_speech(response)
         
-        await update.message.reply_voice(
-            voice=io.BytesIO(audio_bytes),
-            caption=response[:1024] if len(response) > 200 else None
-        )
-        
-        if len(response) > 1024:
-            await update.message.reply_text(response, parse_mode="Markdown")
+        # Send audio
+        await update.message.reply_voice(voice=io.BytesIO(audio_bytes))
             
     except Exception as e:
         logger.error(f"Error generating audio: {e}")
-        await update.message.reply_text(response, parse_mode="Markdown")
+        # Text already sent, just log the error
 
 
 async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
