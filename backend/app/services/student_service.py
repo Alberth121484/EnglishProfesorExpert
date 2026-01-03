@@ -35,10 +35,26 @@ class StudentService:
         student = result.scalar_one_or_none()
         
         if student:
+            # Update student info if provided (in case they were created with defaults)
+            updated = False
+            if first_name and first_name != "Usuario" and student.first_name == "Usuario":
+                student.first_name = first_name
+                updated = True
+            if last_name and not student.last_name:
+                student.last_name = last_name
+                updated = True
+            if username and not student.username:
+                student.username = username
+                updated = True
+            
             # Update last activity and streak
             await self._update_streak(student)
             student.last_activity = datetime.now(timezone.utc)
             await self.db.commit()
+            
+            if updated:
+                logger.info(f"Updated student info: {student.full_name} (telegram_id: {telegram_id})")
+            
             return student, False
         
         # Create new student

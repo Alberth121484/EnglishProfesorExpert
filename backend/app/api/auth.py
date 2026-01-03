@@ -6,7 +6,6 @@ from fastapi import APIRouter, HTTPException, Depends
 from jose import jwt, JWTError
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import text
 from app.config import get_settings
 from app.database import get_db
 from app.schemas import TelegramAuthData, TokenResponse
@@ -118,23 +117,25 @@ async def authenticate_by_telegram_id(
 ):
     """
     Authenticate by Telegram ID (for users coming from bot).
-    This is a simplified auth for users who click the panel link from Telegram.
+    Creates the student automatically if they don't exist yet.
     """
     logger.info(f"Auth attempt for telegram_id: {telegram_id}")
     
-    # Debug: Check what students exist in database
-    result = await db.execute(text("SELECT id, telegram_id, first_name FROM students LIMIT 10"))
-    existing_students = result.fetchall()
-    logger.info(f"Existing students in DB: {existing_students}")
-    
     student_service = StudentService(db)
-    student = await student_service.get_student_by_telegram_id(telegram_id)
     
-    if not student:
-        logger.warning(f"Student not found for telegram_id: {telegram_id}")
-        raise HTTPException(status_code=404, detail="Student not found")
+    # Get or create student - this ensures users can always access the panel
+    student, is_new = await student_service.get_or_create_student(
+        telegram_id=telegram_id,
+        first_name="Usuario",  # Default name, will be updated when they use the bot
+        last_name=None,
+        username=None
+    )
     
-    logger.info(f"Found student: {student.id} - {student.first_name}")
+    if is_new:
+        logger.info(f"Created new student on panel access: {student.id} (telegram_id: {telegram_id})")
+    else:
+        logger.info(f"Found existing student: {student.id} - {student.first_name}")
+    
     token = create_access_token(telegram_id, student.id)
     
     return TokenResponse(
