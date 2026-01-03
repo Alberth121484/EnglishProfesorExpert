@@ -1,10 +1,27 @@
 import logging
+import re
 import httpx
 from openai import AsyncOpenAI
 from app.config import get_settings
 
 settings = get_settings()
 logger = logging.getLogger(__name__)
+
+
+def strip_markdown(text: str) -> str:
+    """Remove markdown formatting from text for TTS."""
+    # Remove bold/italic markers
+    text = re.sub(r'\*+([^*]+)\*+', r'\1', text)
+    text = re.sub(r'_+([^_]+)_+', r'\1', text)
+    # Remove code blocks
+    text = re.sub(r'`([^`]+)`', r'\1', text)
+    # Remove links [text](url)
+    text = re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', text)
+    # Remove headers
+    text = re.sub(r'^#+\s*', '', text, flags=re.MULTILINE)
+    # Remove bullet points
+    text = re.sub(r'^[\s]*[-•]\s*', '', text, flags=re.MULTILINE)
+    return text.strip()
 
 
 class SpeechService:
@@ -34,6 +51,18 @@ class SpeechService:
     
     async def text_to_speech(self, text: str) -> bytes:
         """Convert text to speech using ElevenLabs."""
+        # Strip markdown formatting for cleaner TTS
+        clean_text = strip_markdown(text)
+        
+        if not clean_text:
+            logger.warning("Empty text after stripping markdown")
+            raise ValueError("Empty text for TTS")
+        
+        # Check if API key is configured
+        if not settings.elevenlabs_api_key:
+            logger.error("ElevenLabs API key not configured")
+            raise ValueError("ElevenLabs API key not configured")
+        
         try:
             url = f"{self.elevenlabs_url}/{settings.elevenlabs_voice_id}"
             
@@ -44,7 +73,7 @@ class SpeechService:
             }
             
             data = {
-                "text": text,
+                "text": clean_text,
                 "model_id": "eleven_multilingual_v2",
                 "voice_settings": {
                     "stability": 0.5,
@@ -52,18 +81,26 @@ class SpeechService:
                 }
             }
             
+            logger.info(f"Sending TTS request for: {clean_text[:50]}...")
+            
             async with httpx.AsyncClient() as client:
                 response = await client.post(
                     url,
                     headers=headers,
                     json=data,
-                    timeout=30.0
+                    timeout=60.0
                 )
-                response.raise_for_status()
                 
-                logger.info(f"Generated audio for text: {text[:50]}...")
+                if response.status_code != 200:
+                    logger.error(f"ElevenLabs API error: {response.status_code} - {response.text}")
+                    raise Exception(f"ElevenLabs API error: {response.status_code}")
+                
+                logger.info(f"Successfully generated audio ({len(response.content)} bytes)")
                 return response.content
                 
+        except httpx.TimeoutException:
+            logger.error("ElevenLabs API timeout")
+            raise
         except Exception as e:
             logger.error(f"Error generating speech: {e}")
             raise
