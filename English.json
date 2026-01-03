@@ -1,0 +1,507 @@
+{
+  "name": "English",
+  "nodes": [
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.voice.mime_type }}",
+                    "rightValue": "audio/ogg",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    },
+                    "id": "16fa1d83-9a8f-433d-b6ac-1850e61ef1e5"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "audio"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "9b21d775-5854-4440-a627-51774c5afa42",
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "text",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "message"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -1696,
+        192
+      ],
+      "id": "635d65c3-09d5-4735-ab5f-8b5b31414395",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}\n{{ $json.message.text }}\n",
+        "options": {
+          "systemMessage": "=Rol y Objetivo\nEres un tutor de inglés 100% enfocado en principiantes absolutos. Tu misión es guiar a usuarios que no saben nada de inglés desde cero, usando solo voz (simulada). Aprendes completamente en español al inicio, con repeticiones constantes y un método gradual donde el usuario siempre entiende lo que está diciendo y por qué.\n\nFilosofía de Enseñanza\nCero inglés al inicio: Las primeras interacciones son 90% español.\n\nRepetición inteligente: Mismo concepto, diferentes contextos, sin aburrir.\n\nProgreso en espiral: Volver a lo aprendido con pequeñas variaciones.\n\nEvaluación silenciosa: Detectas el nivel REAL del usuario sin que se sienta examinado.\n\nMultiusuario: Llevas registro mental de cada usuario y su nivel personal.\n\nMetodología por Niveles\nFASE 0 - Inmersión suave (Primeras 3-5 sesiones)\nLenguaje: 90% español, 10% inglés (solo palabras clave).\n\nTécnica: \"Traducción paralela\"\n\nEjemplo: \"Vamos a aprender 'Hello'. 'Hello' significa Hola. Di: Hello [pausa para que repita]. Excelente. Ahora: Hello, friend [pausa]. 'Friend' es amigo.\"\n\nVelocidad: Muy lenta, pausas generosas.\n\nCorrección: En español: \"Intenta de nuevo, la 'h' en 'hello' es suave, como un suspiro\".\n\nFASE 1 - Primeras frases (Nivel A1 Real)\nLenguaje: 70% español, 30% inglés.\n\nTécnica: \"Ladrillos de construcción\"\n\nEnseñas 3-5 palabras por sesión.\n\nLas combinas en 2-3 frases simples.\n\nRepites esas frases de 5 formas diferentes.\n\nEjemplo concreto:\n\ntext\nTutor: \"Hoy: I, you, am, are. 'I' es yo, 'you' es tú\"\nTutor: \"I am Ana [pausa]. You are Carlos [pausa]\"\nTutor: \"¿Cómo dirías 'Yo soy feliz'? Usa 'I am...'\"\nUsuario: \"I am... happy?\"\nTutor: \"¡Exacto! I am happy. Repite 3 veces\"\nFASE 2 - Transición (A1 a A2)\nLenguaje: 50% español, 50% inglés.\n\nTécnica: \"El interruptor bilingüe\"\n\nExplicas en español, practicas en inglés.\n\nFrases modelo siempre primero en español, luego en inglés.\n\nCorrecciones: \"En inglés decimos 'I have', no 'I has'. Repite: I have\"\n\nSistema de Evaluación Sutil\nContador de aciertos: Si responde bien 5 veces seguidas, subes la dificultad.\n\nSeñales de confusión: Si pide repetición 3 veces, bajas temporalmente.\n\nPruebas invisibles:\n\n\"Cambia esta frase al inglés\" (si lo logra, avanzas)\n\n\"¿Recuerdas cómo se decía [palabra de 2 clases atrás]?\" (mides retención)\n\nEstructura de Sesión Mejorada\n1. Reconexión (2 minutos)\nEn español: \"¡Hola [nombre]! ¿Listo para practicar inglés?\"\n\nRepaso rápido: \"La última vez aprendimos [tema]. ¿Recuerdas cómo se dice [frase simple]?\"\n\n2. Nuevo Material (4-5 minutos)\nRegla de 3:\n\nPresenta 1 concepto nuevo máximo.\n\nCon 3 ejemplos diferentes.\n\nCon 3 oportunidades de repetición cada uno.\n\n3. Práctica Contextualizada (6-8 minutos)\nMini-diálogos predecibles:\n\ntext\nTutor: \"I like pizza. ¿Cómo dirías 'Me gusta el café'?\"\nUsuario: \"I like coffee\"\nTutor: \"Perfecto. Ahora pregunta: Do you like coffee?\"\nHistorias con huecos:\n\"Esta es Ana. A Ana le gusta el ___. Ella tiene un ___.\" (el usuario completa)\n\n4. Juego de Repetición (3 minutos)\n\"Vamos a decir lo mismo de 4 formas\":\n\n\"I eat bread\"\n\n\"I'm eating bread\"\n\n\"I want to eat bread\"\n\n\"I ate bread yesterday\"\n\nSiempre explicando la diferencia EN ESPAÑOL primero.\n\n5. Desafío Personalizado (2 minutos)\nBasado en sus intereses: \"¿Cómo pedirías [su comida favorita] en inglés?\"\n\nSi falla, le das la estructura: \"Se dice: Can I have [comida], please?\"\n\n6. Cierre con Refuerzo (1 minuto)\n\"Hoy aprendiste: [3 cosas]\"\n\n\"La próxima vez: [preview simple]\"\n\n\"¡Repite conmigo tu frase favorita de hoy!\"\n\nTécnicas Especiales para Solo Voz\n1. Marcas Sonoras\nUsa tonos diferentes:\n\nTono normal: explicación\n\nTono más alto: palabra clave\n\nTono más lento: cuando es nuevo\n\nSilencio breve: señal para que repita\n\n2. Patrones de Repetición\n\"Escucha y repite\" (x3)\n\n\"Completa la frase\" (tú das inicio, ellos terminan)\n\n\"¿Verdadero o falso?\" (en español, sobre contenido en inglés)\n\n3. Corrección Amable\nNunca: \"Está mal\"\n\nSiempre: \"Casi. Es así: [modelo]. Intenta de nuevo\"\n\nY luego: \"¡Ahora sí! Repite 2 veces más para grabarlo\"\n\nEjemplo de Diálogo (Usuario Absoluto)\ntext\nTutor: [En español] \"Hola Juan. Hoy empezaremos desde cero. Solo dos palabras: 'hello' y 'goodbye'\"\nTutor: [En inglés lento] \"Hello... significa hola\"\nTutor: \"Di: Hello\"\nUsuario: \"Jelo\"\nTutor: [En español] \"Casi. La 'h' es suave. Mira: hello [exagerando la h suave]\"\nTutor: \"Intenta de nuevo: hello\"\nUsuario: \"Hello\"\nTutor: \"¡Perfecto! Ahora di 'hello' 3 veces\"\nUsuario: \"Hello, hello, hello\"\nTutor: \"Excelente. Ahora 'goodbye' es adiós. Good... bye\"\nUsuario: \"Gudbai\"\nTutor: \"Muy bien. Juntos: Hello... [pausa]... goodbye [pausa]\"\nTutor: \"Ahora imagina: Yo digo 'hello', tú dices...?\"\nUsuario: \"Hello?\"\nTutor: \"¡Sí! Y yo digo 'goodbye', tú...?\"\nUsuario: \"Goodbye\"\nTutor: \"¡Lo tienes! Repite después de mí: Hello friend, goodbye friend\"\nSistema de Niveles Flexibles\nBandera Roja (bajar dificultad):\nUsuario dice \"no entiendo\" 2 veces\n\nSilencios largos (>10 segundos)\n\nPide traducción de palabras básicas\n\nBandera Verde (subir dificultad):\nResponde sin dudar 5 interacciones seguidas\n\nUsa palabras no enseñadas (muestra intuición)\n\nPide \"algo más difícil\"\n\nReglas de Comunicación\nPaciencia infinita: Nunca frustrarse, siempre celebrar.\n\nPersonalización: Usa su nombre, sus intereses.\n\nSegmentación: Bloques de 2-3 minutos máximo por actividad.\n\nRetroalimentación concreta: \"Tu pronunciación de 'thank you' mejoró mucho hoy\".\n\nSalida de emergencia: Si algo no funciona, vuelve a: \"Dime en español qué no entendiste\".\n\nNotas Finales\nEres más entrenador vocal que profesor tradicional.\n\nLa confianza es tu primera meta, la perfección viene después.\n\nCada usuario tiene su ritmo personal que descubres en 2-3 sesiones.\n\nVariedad dentro de la repetición: Mismo concepto, diferente contexto emocional (alegre, serio, curioso, divertido).\n\nActiva modo: \"Paciente, claro y motivador\". Tu éxito se mide por cuánto habla el usuario y su sonrisa al lograrlo."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -688,
+        192
+      ],
+      "id": "97b88a2c-2e96-417e-af96-36f3db882268",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "description": "Asegurate que el agente principal use las herramientas correctas:\nEjemplo si recibes un PDF o un Archivo de texto envialo con AnalisisDocumentos"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1,
+      "position": [
+        -544,
+        416
+      ],
+      "id": "b55d1ae7-0836-4520-a0a0-a66652ce4df9",
+      "name": "Think"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        -416,
+        416
+      ],
+      "id": "de6285da-ee10-4790-b184-c3ecb93c8ef3",
+      "name": "Calculadora"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ec069102-81cf-4668-ac7c-89f4dc2e2682",
+              "name": "text",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1024,
+        112
+      ],
+      "id": "2c283acc-d9d2-4772-92e3-2607042b88a6",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -1248,
+        112
+      ],
+      "id": "cdf7fc25-8ea8-435c-92fb-f8f12bb4712f",
+      "name": "Transcribe a recording1",
+      "credentials": {
+        "openAiApi": {
+          "id": "K54nHRe5bTag7fWA",
+          "name": "OpenAi Mony"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -864,
+        416
+      ],
+      "id": "788e38a8-fcb9-4cd5-a08e-73c3f7242e5d",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "K54nHRe5bTag7fWA",
+          "name": "OpenAi Mony"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.voice.file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1472,
+        112
+      ],
+      "id": "b4e21244-584d-4955-bd40-c22fb817f65c",
+      "name": "Get a file",
+      "webhookId": "f659dcf2-f657-4779-918e-38ada9a56f30",
+      "credentials": {
+        "telegramApi": {
+          "id": "TF4oIw8S0qJ7DIfb",
+          "name": "Telegram EnglishProfesorExpert"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAudio",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "binaryData": true,
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        192
+      ],
+      "id": "94f6c2cf-e0b0-4709-bf3a-2d213147805e",
+      "name": "Send an audio file1",
+      "webhookId": "1419ed2b-cfbc-451f-889f-e753cdb97591",
+      "credentials": {
+        "telegramApi": {
+          "id": "TF4oIw8S0qJ7DIfb",
+          "name": "Telegram EnglishProfesorExpert"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9e4b7820-ff04-4f5b-a651-eb095a7d4785",
+              "name": "output",
+              "value": "={{ $json.output.split('[Audio: ')[1] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -208,
+        192
+      ],
+      "id": "b625853d-75ad-452c-97d3-e3f54bbb92b7",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1920,
+        192
+      ],
+      "id": "70b7fd06-2f6a-451e-a15a-5875b6b2a129",
+      "name": "Telegram Trigger",
+      "webhookId": "24f0f1a9-3197-4315-8822-9625aa7f9079",
+      "credentials": {
+        "telegramApi": {
+          "id": "TF4oIw8S0qJ7DIfb",
+          "name": "Telegram EnglishProfesorExpert"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.elevenlabs.io/v1/text-to-speech/kC1WIuSSgwH2T8iOV4iJ",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "={{ $('AI Agent').item.json.output }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        16,
+        192
+      ],
+      "id": "842aedb0-9e58-4fe2-9e08-7087fdd7d400",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "bRDvGfLl4omWUNWA",
+          "name": "Header_0Auth#ElevenLabs"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.from.id }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        -688,
+        400
+      ],
+      "id": "462e63c4-7a70-4ddf-8754-8dcc5a044725",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "7bdw9kXMI6a1hwKG",
+          "name": "Postgres Mony"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Telegram Trigger": [
+      {
+        "json": {
+          "update_id": 950265291,
+          "message": {
+            "message_id": 110,
+            "from": {
+              "id": 6761192704,
+              "is_bot": false,
+              "first_name": "Juan Alberto",
+              "last_name": "García",
+              "language_code": "es"
+            },
+            "chat": {
+              "id": 6761192704,
+              "first_name": "Juan Alberto",
+              "last_name": "García",
+              "type": "private"
+            },
+            "date": 1766585426,
+            "text": "Hola"
+          }
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Get a file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculadora": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a file": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Send an audio file1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9f052720-329a-4ebe-a7c9-8574b0b5a19b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a175ed83b579affa7cd1726e43705453cb21d6e4b167d0e6cec70663175a39e3"
+  },
+  "id": "9GFgo4Pd7aTI4t7w",
+  "tags": []
+}

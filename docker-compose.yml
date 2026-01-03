@@ -1,0 +1,121 @@
+version: "3.8"
+
+services:
+  # Backend API + Telegram Bot
+  english-backend:
+    image: ${DOCKER_REGISTRY:-}english-profesor-backend:${VERSION:-latest}
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:${POSTGRES_PASSWORD}@english-postgres:5432/english_tutor
+      - REDIS_URL=redis://english-redis:6379/0
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4.1-mini}
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
+      - ELEVENLABS_VOICE_ID=${ELEVENLABS_VOICE_ID:-kC1WIuSSgwH2T8iOV4iJ}
+      - SECRET_KEY=${SECRET_KEY}
+      - API_URL=https://${API_DOMAIN}
+      - FRONTEND_URL=https://${PANEL_DOMAIN}
+      - DEBUG=false
+      - TZ=America/Mexico_City
+    networks:
+      - backend
+      - automatlannetwork
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=automatlannetwork"
+        - "traefik.http.routers.english-api.rule=Host(`${API_DOMAIN}`)"
+        - "traefik.http.routers.english-api.entrypoints=websecure"
+        - "traefik.http.routers.english-api.tls.certresolver=letsencryptresolver"
+        - "traefik.http.services.english-api.loadbalancer.server.port=8000"
+
+  # Frontend Panel
+  english-frontend:
+    image: ${DOCKER_REGISTRY:-}english-profesor-frontend:${VERSION:-latest}
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=https://${API_DOMAIN}
+    environment:
+      - TZ=America/Mexico_City
+    networks:
+      - backend
+      - automatlannetwork
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=automatlannetwork"
+        - "traefik.http.routers.english-panel.rule=Host(`${PANEL_DOMAIN}`)"
+        - "traefik.http.routers.english-panel.entrypoints=websecure"
+        - "traefik.http.routers.english-panel.tls.certresolver=letsencryptresolver"
+        - "traefik.http.services.english-panel.loadbalancer.server.port=80"
+
+  # PostgreSQL Database
+  english-postgres:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=english_tutor
+      - TZ=America/Mexico_City
+    volumes:
+      - english_postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+
+  # Redis Cache
+  english-redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    environment:
+      - TZ=America/Mexico_City
+    volumes:
+      - english_redis_data:/data
+    networks:
+      - backend
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+
+volumes:
+  english_postgres_data:
+  english_redis_data:
+
+networks:
+  backend:
+    driver: overlay
+    attachable: true
+  automatlannetwork:
+    external: true
+    name: automatlannetwork
