@@ -9,6 +9,7 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME_BACKEND: ${{ github.repository }}/backend
   IMAGE_NAME_FRONTEND: ${{ github.repository }}/frontend
+  IMAGE_NAME_ADMIN: ${{ github.repository }}/admin
 
 jobs:
   build-and-push:
@@ -68,6 +69,28 @@ jobs:
           push: true
           tags: ${{ steps.meta-frontend.outputs.tags }}
           labels: ${{ steps.meta-frontend.outputs.labels }}
+          build-args: |
+            VITE_API_URL=https://api.english.alchemycode.dev
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Extract metadata for Admin
+        id: meta-admin
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_ADMIN }}
+          tags: |
+            type=sha,prefix=
+            type=raw,value=latest
+
+      - name: Build and push Admin image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./admin
+          file: ./admin/Dockerfile
+          push: true
+          tags: ${{ steps.meta-admin.outputs.tags }}
+          labels: ${{ steps.meta-admin.outputs.labels }}
           build-args: |
             VITE_API_URL=https://api.english.alchemycode.dev
           cache-from: type=gha
