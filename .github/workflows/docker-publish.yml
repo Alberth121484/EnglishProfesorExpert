@@ -92,6 +92,6 @@ jobs:
           tags: ${{ steps.meta-admin.outputs.tags }}
           labels: ${{ steps.meta-admin.outputs.labels }}
           build-args: |
-            VITE_API_URL=https://api.english.alchemycode.dev
+            VITE_API_URL=https://api.english.alchemycode.dev/api
           cache-from: type=gha
           cache-to: type=gha,mode=max

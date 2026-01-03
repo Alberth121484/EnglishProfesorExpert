@@ -75,7 +75,7 @@ services:
       context: ./admin
       dockerfile: Dockerfile
       args:
-        - VITE_API_URL=https://${API_DOMAIN}
+        - VITE_API_URL=https://${API_DOMAIN}/api
     environment:
       - TZ=America/Mexico_City
     networks:
